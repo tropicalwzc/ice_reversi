@@ -19,6 +19,7 @@ namespace IceReversi.Editor
             {
                 CaptureReferenceLayouts();
                 Debug.Log("ICE_REVERSI_LAYOUT_CAPTURE_SUCCESS");
+                EditorApplication.Exit(0);
             }
             catch (Exception exception)
             {

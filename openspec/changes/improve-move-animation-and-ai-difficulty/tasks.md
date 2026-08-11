@@ -22,7 +22,7 @@
 - [x] 3.7 Implement Easy's seeded controlled selection from a fully scored legal shortlist while keeping Normal, Hard, and Expert on the best completed score
 - [x] 3.8 Ensure cancellation and node/time checks cover ordering, evaluation, transposition access, iterative boundaries, pass recursion, and exact endgame recursion
 - [x] 3.9 Add EditMode tests for completed-depth fallback, deterministic ordering, cache hits/capacity, tactical fixtures, endgame outcomes, every profile's legality, and stale/cancelled request rejection
-- [ ] 3.10 Profile the position corpus and tune the four starting policies so budgets remain ordered and the main thread remains responsive on Unity 6000.5.7f1
+- [x] 3.10 Profile the position corpus and tune the four starting policies so budgets remain ordered and the main thread remains responsive on Unity 6000.5.7f1
 
 ## 4. Build Complete Move Presentation
 
@@ -41,14 +41,14 @@
 - [x] 5.5 Make restart, undo, human-side changes, spectating changes, exit, and destruction cancel presentation plus AI work and reconcile the scene to the authoritative snapshot
 - [x] 5.6 Implement difficulty cycling in `GameController`, persist the selection, update the HUD immediately, and replace at most one in-flight AI request without changing the current board/history
 - [x] 5.7 Add a compact `AI: <Difficulty>` HUD control that remains readable in the safe area without displacing existing essential actions
-- [ ] 5.8 Update the Editor builder and Validator to wire and require the difficulty control, regenerated scene references, and new presentation configuration
+- [x] 5.8 Update the Editor builder and Validator to wire and require the difficulty control, regenerated scene references, and new presentation configuration
 - [x] 5.9 Synchronize placement/flip audio with visible presentation milestones and retain null-safe optional clips
 
 ## 6. Verify Strength, Presentation, and Compatibility
 
-- [ ] 6.1 Run all EditMode tests under Unity 6000.5.7f1 and fix every rules, difficulty, iterative-search, cache, tactical, cancellation, or bound failure
-- [ ] 6.2 Run all PlayMode tests and verify human and AI placement/flips, pending fast AI results, input gating, pass, undo/restart cancellation, side changes, difficulty changes, spectating, exit, and game over
-- [ ] 6.3 Run deterministic position and full-game benchmark suites across all four profiles and document completed depth, nodes, elapsed time, cache hits, selected moves, and outcomes without treating win rate as a deterministic assertion
-- [ ] 6.4 Capture and inspect portrait, landscape, 16:9, and 4:3 Game views and correct any board, difficulty-label, score, result, or action overlap
-- [ ] 6.5 Run the idempotent Builder twice and the batch Validator once, confirming `Game.unity` remains the only startup scene with no duplicate objects, missing references, scripts, materials, or external dependencies
-- [ ] 6.6 Update README controls and `Docs/AiPerformance.md` with difficulty behavior, animation timing, final profile budgets, benchmark methodology, and measured representative results
+- [x] 6.1 Run all EditMode tests under Unity 6000.5.7f1 and fix every rules, difficulty, iterative-search, cache, tactical, cancellation, or bound failure
+- [x] 6.2 Run all PlayMode tests and verify human and AI placement/flips, pending fast AI results, input gating, pass, undo/restart cancellation, side changes, difficulty changes, spectating, exit, and game over
+- [x] 6.3 Run deterministic position and full-game benchmark suites across all four profiles and document completed depth, nodes, elapsed time, cache hits, selected moves, and outcomes without treating win rate as a deterministic assertion
+- [x] 6.4 Capture and inspect portrait, landscape, 16:9, and 4:3 Game views and correct any board, difficulty-label, score, result, or action overlap
+- [x] 6.5 Run the idempotent Builder twice and the batch Validator once, confirming `Game.unity` remains the only startup scene with no duplicate objects, missing references, scripts, materials, or external dependencies
+- [x] 6.6 Update README controls and `Docs/AiPerformance.md` with difficulty behavior, animation timing, final profile budgets, benchmark methodology, and measured representative results
