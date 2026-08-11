@@ -1,0 +1,23 @@
+{
+  "name": "IceReversi.Tests.PlayMode",
+  "rootNamespace": "IceReversi.Tests",
+  "references": [
+    "IceReversi.Core",
+    "IceReversi.Unity",
+    "Unity.ugui"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

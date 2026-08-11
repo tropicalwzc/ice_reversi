@@ -1,0 +1,44 @@
+# Unity-generated directories
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# Build output
+[Bb]uild/
+[Bb]uilds/
+[Oo]utput/
+[Oo]utputs/
+
+# Generated IDE files
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.unityproj
+
+# Unity crash and profiling output
+sysinfo.txt
+*.stackdump
+crashlytics-build.properties
+
+# OS and editor files
+.DS_Store
+.idea/
+.vs/
+.vscode/
+
+# Keep Unity package lock files and all authored .meta files tracked.
+

@@ -1,0 +1,21 @@
+{
+  "name": "IceReversi.Editor",
+  "rootNamespace": "IceReversi.Editor",
+    "references": [
+    "IceReversi.Core",
+    "IceReversi.Unity",
+    "Unity.InputSystem",
+    "Unity.ugui"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
