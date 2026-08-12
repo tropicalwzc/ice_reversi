@@ -135,6 +135,8 @@ namespace IceReversi.Editor
             ValidatePositiveFloat(boards.Length == 1 ? boards[0] : null, "maximumPresentationDuration", errors);
             ValidateObjectReference(huds.Length == 1 ? huds[0] : null, "difficultyButton", errors);
             ValidateObjectReference(huds.Length == 1 ? huds[0] : null, "difficultyButtonText", errors);
+            ValidateObjectReference(huds.Length == 1 ? huds[0] : null, "languageButton", errors);
+            ValidateObjectReference(huds.Length == 1 ? huds[0] : null, "languageButtonText", errors);
 
             foreach (var dependency in AssetDatabase.GetDependencies(ReversiProjectBuilder.ScenePath, true))
             {

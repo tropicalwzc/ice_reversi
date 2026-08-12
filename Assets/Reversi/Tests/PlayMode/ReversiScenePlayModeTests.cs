@@ -16,6 +16,7 @@ namespace IceReversi.Tests
     {
         private const string SidePreferenceKey = "ice-reversi.human-side";
         private const string DifficultyPreferenceKey = "ice-reversi.ai-difficulty";
+        private const string LanguagePreferenceKey = "ice-reversi.language";
         private static readonly MethodInfo TryHumanMoveMethod = typeof(GameController).GetMethod(
             "TryHumanMove",
             BindingFlags.Instance | BindingFlags.NonPublic);
@@ -28,6 +29,7 @@ namespace IceReversi.Tests
         {
             PlayerPrefs.DeleteKey(SidePreferenceKey);
             PlayerPrefs.DeleteKey(DifficultyPreferenceKey);
+            PlayerPrefs.DeleteKey(LanguagePreferenceKey);
             yield return SceneManager.LoadSceneAsync("Game", LoadSceneMode.Single);
             yield return null;
         }
@@ -37,6 +39,7 @@ namespace IceReversi.Tests
         {
             PlayerPrefs.DeleteKey(SidePreferenceKey);
             PlayerPrefs.DeleteKey(DifficultyPreferenceKey);
+            PlayerPrefs.DeleteKey(LanguagePreferenceKey);
             yield return null;
         }
 
@@ -319,6 +322,85 @@ namespace IceReversi.Tests
             Assert.That(controller.CurrentSnapshot.ActiveColor, Is.EqualTo(PieceColor.White));
         }
 
+        [UnityTest]
+        public IEnumerator LanguageToggle_TranslatesAllHudCopyAndPersists()
+        {
+            var controller = Object.FindAnyObjectByType<GameController>();
+            var hud = Object.FindAnyObjectByType<GameHud>();
+            Assert.That(controller.Language, Is.EqualTo(GameLanguage.English));
+
+            controller.ToggleLanguage();
+            Assert.That(controller.Language, Is.EqualTo(GameLanguage.Chinese));
+            Assert.That(PlayerPrefs.GetString(LanguagePreferenceKey), Is.EqualTo("zh"));
+            AssertHudContains(
+                "黑棋  2", "白棋  2", "黑棋行棋", "重新开始", "悔棋",
+                "执白棋", "观看 AI", "AI：普通", "EN", "退出");
+
+            var passSnapshot = new GameSnapshot(
+                controller.CurrentSnapshot.Board,
+                PieceColor.Black,
+                PieceColor.White,
+                GameResult.InProgress,
+                controller.CurrentSnapshot.LegalMoves,
+                controller.CurrentSnapshot.HistoryCount);
+            hud.Refresh(
+                passSnapshot,
+                controller.HumanSide,
+                controller.Mode,
+                true,
+                controller.Difficulty,
+                GameLanguage.Chinese);
+            AssertHudContains("白棋停一手 · 黑棋 AI 思考中…");
+
+            var terminalBoard = BoardState.FromRows(
+                "BBBBBBBB", "BBBBBBBB", "BBBBBBBB", "BBBBBBBB",
+                "BBBBBBBB", "BBBBBBBB", "BBBBBBBB", "BBBBBBBB");
+            hud.Refresh(
+                new GameSnapshot(
+                    terminalBoard,
+                    PieceColor.Black,
+                    PieceColor.Empty,
+                    GameResult.BlackWins,
+                    System.Array.Empty<BoardCoordinate>(),
+                    60),
+                controller.HumanSide,
+                controller.Mode,
+                false,
+                AiDifficulty.Expert,
+                GameLanguage.Chinese);
+            AssertHudContains("黑棋获胜", "AI：专家");
+
+            yield return SceneManager.LoadSceneAsync("Game", LoadSceneMode.Single);
+            yield return null;
+            controller = Object.FindAnyObjectByType<GameController>();
+            Assert.That(controller.Language, Is.EqualTo(GameLanguage.Chinese));
+            AssertHudContains("黑棋  2", "白棋  2", "黑棋行棋", "EN");
+
+            controller.ToggleLanguage();
+            Assert.That(controller.Language, Is.EqualTo(GameLanguage.English));
+            AssertHudContains("Black  2", "White  2", "Black to move", "中文");
+        }
+
+        [UnityTest]
+        public IEnumerator LanguageChangeDuringMove_DoesNotCancelAnimationOrSearch()
+        {
+            var controller = Object.FindAnyObjectByType<GameController>();
+            PlayHumanMove(controller, new BoardCoordinate(2, 3));
+            Assert.That(controller.IsPresentingMove, Is.True);
+            Assert.That(controller.IsAiThinking, Is.True);
+
+            controller.ToggleLanguage();
+            Assert.That(controller.IsPresentingMove, Is.True);
+            Assert.That(controller.IsAiThinking, Is.True);
+            AssertHudContains("白棋 AI 思考中…");
+
+            yield return new WaitForSecondsRealtime(0.08f);
+            Assert.That(controller.IsPresentingMove, Is.True);
+            InvalidateAiMethod.Invoke(controller, null);
+            yield return WaitUntil(() => !controller.IsPresentingMove, 1f, "localized move presentation");
+            Assert.That(FindPiece("Piece_3_3").DisplayedColor, Is.EqualTo(PieceColor.Black));
+        }
+
         private static void PlayHumanMove(GameController controller, BoardCoordinate coordinate)
         {
             TryHumanMoveMethod.Invoke(controller, new object[] { coordinate });
@@ -362,6 +444,16 @@ namespace IceReversi.Tests
                 candidate => candidate.name == name);
             Assert.That(piece, Is.Not.Null, $"Expected {name}.");
             return piece;
+        }
+
+        private static void AssertHudContains(params string[] expectedValues)
+        {
+            var texts = Object.FindObjectsByType<Text>(FindObjectsInactive.Include);
+            foreach (var value in expectedValues)
+            {
+                Assert.That(System.Array.Exists(texts, text => text.text == value), Is.True,
+                    $"Expected localized HUD text '{value}'.");
+            }
         }
 
         private static void SetPrivateField<T>(GameController controller, string fieldName, T value)

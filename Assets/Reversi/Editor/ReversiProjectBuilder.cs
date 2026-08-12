@@ -332,6 +332,7 @@ namespace IceReversi.Editor
             var side = CreateButton("Side", actions, font, "Play White");
             var spectate = CreateButton("Spectate", actions, font, "Watch AI");
             var difficulty = CreateButton("Difficulty", actions, font, "AI: Normal");
+            var language = CreateButton("Language", actions, font, "中文");
             var exit = CreateButton("Exit", actions, font, "Exit");
 
             var resultPanel = CreatePanel("ResultPanel", safeArea, new Color(0.015f, 0.025f, 0.045f, 0.95f));
@@ -344,8 +345,8 @@ namespace IceReversi.Editor
             hud.Configure(
                 blackScore, whiteScore, status, result,
                 side.GetComponentInChildren<Text>(), spectate.GetComponentInChildren<Text>(),
-                difficulty.GetComponentInChildren<Text>(),
-                restart, undo, side, spectate, difficulty, exit, resultPanel.gameObject);
+                difficulty.GetComponentInChildren<Text>(), language.GetComponentInChildren<Text>(),
+                restart, undo, side, spectate, difficulty, language, exit, resultPanel.gameObject);
             hud.Bind(controller);
             return hud;
         }

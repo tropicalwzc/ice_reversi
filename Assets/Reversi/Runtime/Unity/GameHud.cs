@@ -13,15 +13,33 @@ namespace IceReversi.Unity
         [SerializeField] private Text sideButtonText;
         [SerializeField] private Text spectateButtonText;
         [SerializeField] private Text difficultyButtonText;
+        [SerializeField] private Text restartButtonText;
+        [SerializeField] private Text undoButtonText;
+        [SerializeField] private Text languageButtonText;
+        [SerializeField] private Text exitButtonText;
         [SerializeField] private Button restartButton;
         [SerializeField] private Button undoButton;
         [SerializeField] private Button sideButton;
         [SerializeField] private Button spectateButton;
         [SerializeField] private Button difficultyButton;
+        [SerializeField] private Button languageButton;
         [SerializeField] private Button exitButton;
         [SerializeField] private GameObject resultPanel;
 
         private GameController controller;
+        private Font englishFont;
+        private Font chineseFont;
+        private GameLanguage appliedLanguage = (GameLanguage)(-1);
+
+        private static readonly string[] ChineseFontNames =
+        {
+            "PingFang SC",
+            "Microsoft YaHei",
+            "Noto Sans CJK SC",
+            "Droid Sans Fallback",
+            "Arial Unicode MS",
+            "Arial"
+        };
 
         public void Configure(
             Text blackScore,
@@ -48,6 +66,9 @@ namespace IceReversi.Unity
             sideButton = side;
             spectateButton = spectate;
             exitButton = exit;
+            restartButtonText = restart != null ? restart.GetComponentInChildren<Text>(true) : null;
+            undoButtonText = undo != null ? undo.GetComponentInChildren<Text>(true) : null;
+            exitButtonText = exit != null ? exit.GetComponentInChildren<Text>(true) : null;
             resultPanel = resultContainer;
         }
 
@@ -74,6 +95,31 @@ namespace IceReversi.Unity
             difficultyButton = difficultyControl;
         }
 
+        public void Configure(
+            Text blackScore,
+            Text whiteScore,
+            Text status,
+            Text result,
+            Text sideLabel,
+            Text spectateLabel,
+            Text difficultyLabel,
+            Text languageLabel,
+            Button restart,
+            Button undo,
+            Button side,
+            Button spectate,
+            Button difficultyControl,
+            Button languageControl,
+            Button exit,
+            GameObject resultContainer)
+        {
+            Configure(
+                blackScore, whiteScore, status, result, sideLabel, spectateLabel, difficultyLabel,
+                restart, undo, side, spectate, difficultyControl, exit, resultContainer);
+            languageButtonText = languageLabel;
+            languageButton = languageControl;
+        }
+
         public void Bind(GameController gameController)
         {
             Unbind();
@@ -88,6 +134,7 @@ namespace IceReversi.Unity
             sideButton?.onClick.AddListener(controller.ToggleHumanSide);
             spectateButton?.onClick.AddListener(controller.ToggleSpectating);
             difficultyButton?.onClick.AddListener(controller.CycleDifficulty);
+            languageButton?.onClick.AddListener(controller.ToggleLanguage);
             exitButton?.onClick.AddListener(controller.ExitGame);
         }
 
@@ -96,26 +143,26 @@ namespace IceReversi.Unity
             PieceColor humanSide,
             GameMode mode,
             bool isAiThinking,
-            AiDifficulty difficulty = AiDifficulty.Normal)
+            AiDifficulty difficulty = AiDifficulty.Normal,
+            GameLanguage language = GameLanguage.English)
         {
             if (snapshot == null)
             {
                 return;
             }
 
-            SetText(blackScoreText, $"Black  {snapshot.BlackScore}");
-            SetText(whiteScoreText, $"White  {snapshot.WhiteScore}");
-            SetText(sideButtonText, humanSide == PieceColor.Black ? "Play White" : "Play Black");
-            SetText(spectateButtonText, mode == GameMode.AiVersusAi ? "Stop Watching" : "Watch AI");
-            SetText(difficultyButtonText, $"AI: {difficulty}");
-
-            var status = isAiThinking ? $"{snapshot.ActiveColor} AI thinking..." : $"{snapshot.ActiveColor} to move";
-            if (snapshot.LastPassedColor.IsPlayer())
-            {
-                status = $"{snapshot.LastPassedColor} passes · {status}";
-            }
-
-            SetText(statusText, status);
+            ApplyLanguageFont(language);
+            SetText(blackScoreText, GameLocalization.BlackScore(language, snapshot.BlackScore));
+            SetText(whiteScoreText, GameLocalization.WhiteScore(language, snapshot.WhiteScore));
+            SetText(restartButtonText, GameLocalization.Restart(language));
+            SetText(undoButtonText, GameLocalization.Undo(language));
+            SetText(sideButtonText, GameLocalization.SideAction(language, humanSide));
+            SetText(spectateButtonText, GameLocalization.SpectateAction(language, mode));
+            SetText(difficultyButtonText, GameLocalization.Difficulty(language, difficulty));
+            SetText(languageButtonText, GameLocalization.LanguageAction(language));
+            SetText(exitButtonText, GameLocalization.Exit(language));
+            SetText(statusText, GameLocalization.Status(
+                language, snapshot.ActiveColor, snapshot.LastPassedColor, isAiThinking));
             var isGameOver = snapshot.IsGameOver;
             if (resultPanel != null)
             {
@@ -124,7 +171,7 @@ namespace IceReversi.Unity
 
             if (isGameOver)
             {
-                SetText(resultText, ResultLabel(snapshot.Result));
+                SetText(resultText, GameLocalization.Result(language, snapshot.Result));
             }
 
             if (undoButton != null)
@@ -141,6 +188,11 @@ namespace IceReversi.Unity
         private void OnDestroy()
         {
             Unbind();
+            if (chineseFont != null)
+            {
+                Destroy(chineseFont);
+                chineseFont = null;
+            }
         }
 
         private void Unbind()
@@ -155,23 +207,35 @@ namespace IceReversi.Unity
             sideButton?.onClick.RemoveListener(controller.ToggleHumanSide);
             spectateButton?.onClick.RemoveListener(controller.ToggleSpectating);
             difficultyButton?.onClick.RemoveListener(controller.CycleDifficulty);
+            languageButton?.onClick.RemoveListener(controller.ToggleLanguage);
             exitButton?.onClick.RemoveListener(controller.ExitGame);
             controller = null;
         }
 
-        private static string ResultLabel(GameResult result)
+        private void ApplyLanguageFont(GameLanguage language)
         {
-            switch (result)
+            if (appliedLanguage == language) return;
+            if (englishFont == null && blackScoreText != null) englishFont = blackScoreText.font;
+            Font target = englishFont;
+            if (language == GameLanguage.Chinese)
             {
-                case GameResult.BlackWins:
-                    return "Black wins";
-                case GameResult.WhiteWins:
-                    return "White wins";
-                case GameResult.Draw:
-                    return "Draw";
-                default:
-                    return string.Empty;
+                if (chineseFont == null)
+                {
+                    chineseFont = Font.CreateDynamicFontFromOSFont(ChineseFontNames, 32);
+                }
+
+                if (chineseFont != null) target = chineseFont;
             }
+
+            if (target != null)
+            {
+                foreach (var text in GetComponentsInChildren<Text>(true))
+                {
+                    text.font = target;
+                }
+            }
+
+            appliedLanguage = language;
         }
 
         private static void SetText(Text target, string value)

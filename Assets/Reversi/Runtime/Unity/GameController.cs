@@ -24,8 +24,10 @@ namespace IceReversi.Unity
         private GameSession session;
         private HumanSidePreferences sidePreferences;
         private AiDifficultyPreferences difficultyPreferences;
+        private PlayerPrefsLanguageStore languageStore;
         private PieceColor humanSide = PieceColor.Black;
         private AiDifficulty difficulty = AiDifficulty.Normal;
+        private GameLanguage language = GameLanguage.English;
         private GameMode mode = GameMode.HumanVersusAi;
         private bool isAiThinking;
         private bool isPresentingMove;
@@ -37,6 +39,7 @@ namespace IceReversi.Unity
         public GameSnapshot CurrentSnapshot => session?.Snapshot();
         public PieceColor HumanSide => humanSide;
         public AiDifficulty Difficulty => difficulty;
+        public GameLanguage Language => language;
         public GameMode Mode => mode;
         public bool IsAiThinking => isAiThinking;
         public bool IsPresentingMove => isPresentingMove;
@@ -53,8 +56,10 @@ namespace IceReversi.Unity
             lifetimeCancellation = new CancellationTokenSource();
             sidePreferences = new HumanSidePreferences(new PlayerPrefsSideStore());
             difficultyPreferences = new AiDifficultyPreferences(new PlayerPrefsDifficultyStore());
+            languageStore = new PlayerPrefsLanguageStore();
             humanSide = sidePreferences.Load(PieceColor.Black);
             difficulty = difficultyPreferences.Load();
+            language = languageStore.Load();
             session = new GameSession();
             hud?.Bind(this);
         }
@@ -146,6 +151,14 @@ namespace IceReversi.Unity
             SynchronizeBoard();
             RefreshHud();
             StartTurnSequence(null);
+        }
+
+        public void ToggleLanguage()
+        {
+            language = language == GameLanguage.English ? GameLanguage.Chinese : GameLanguage.English;
+            languageStore.Save(language);
+            audioController?.PlayAction();
+            RefreshHud();
         }
 
         public void ExitGame()
@@ -329,7 +342,7 @@ namespace IceReversi.Unity
         {
             if (session != null)
             {
-                hud?.Refresh(session.Snapshot(), humanSide, mode, isAiThinking, difficulty);
+                hud?.Refresh(session.Snapshot(), humanSide, mode, isAiThinking, difficulty, language);
             }
         }
 

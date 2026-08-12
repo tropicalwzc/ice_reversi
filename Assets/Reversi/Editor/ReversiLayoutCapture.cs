@@ -28,6 +28,28 @@ namespace IceReversi.Editor
             }
         }
 
+        public static void CaptureChineseFromCommandLine()
+        {
+            PlayerPrefs.SetString(PlayerPrefsLanguageStore.PreferenceKey, "zh");
+            PlayerPrefs.Save();
+            try
+            {
+                CaptureReferenceLayouts();
+                Debug.Log("ICE_REVERSI_CHINESE_LAYOUT_CAPTURE_SUCCESS");
+                EditorApplication.Exit(0);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+                EditorApplication.Exit(1);
+            }
+            finally
+            {
+                PlayerPrefs.DeleteKey(PlayerPrefsLanguageStore.PreferenceKey);
+                PlayerPrefs.Save();
+            }
+        }
+
         [MenuItem("Ice Reversi/Capture Reference Layouts")]
         public static void CaptureReferenceLayouts()
         {
